@@ -796,7 +796,7 @@ if Code.ensure_loaded?(Ecto) do
           |> join(:inner, [x], y in ^assoc.join_through,
             on: field(x, ^related_key) == field(y, ^related_join_key)
           )
-          |> where(^dynamic([x], field(x, ^owner_join_key) == field(named_binding!(query, :parent), ^owner_key)))
+          |> where([x], field(x, ^owner_join_key) == field(parent_as(:parent), ^owner_key))
 
         binds_count = Ecto.Query.Builder.count_binds(join_query)
 
