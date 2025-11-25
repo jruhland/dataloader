@@ -796,7 +796,7 @@ if Code.ensure_loaded?(Ecto) do
           |> join(:inner, [x], y in ^assoc.join_through,
             on: field(x, ^related_key) == field(y, ^related_join_key)
           )
-          |> where([..., x], field(x, ^owner_join_key) == field(parent_as(:parent), ^owner_key))
+          |> where(^dynamic([x], field(x, ^owner_join_key) == field(named_binding!(query, :parent), ^owner_key)))
 
         binds_count = Ecto.Query.Builder.count_binds(join_query)
 
@@ -814,10 +814,10 @@ if Code.ensure_loaded?(Ecto) do
 
         join_query =
           query
-          |> join(:inner, [..., x], y in ^assoc.join_through,
+          |> join(:inner, [x], y in ^assoc.join_through, as: :last_binding,
             on: field(x, ^related_key) == field(y, ^related_join_key)
           )
-          |> where([..., x], field(x, ^owner_join_key) == field(parent_as(:parent), ^owner_key))
+          |> where([x], field(x, ^owner_join_key) == field(parent_as(:parent), ^owner_key))
 
         binds_count = Ecto.Query.Builder.count_binds(join_query)
 
@@ -836,7 +836,7 @@ if Code.ensure_loaded?(Ecto) do
         join_query =
           query
           |> where(
-            [..., x],
+            [x],
             field(x, ^assoc.related_key) == field(parent_as(:parent), ^assoc.owner_key)
           )
 
@@ -858,7 +858,7 @@ if Code.ensure_loaded?(Ecto) do
           |> join(:inner, [x], y in ^assoc.join_through,
             on: field(x, ^related_key) == field(y, ^related_join_key)
           )
-          |> join(:inner, [..., x], y in ^assoc.owner,
+          |> join(:inner, [_x, x], y in ^assoc.owner,
             on: field(x, ^owner_join_key) == field(y, ^owner_key)
           )
 
@@ -881,10 +881,10 @@ if Code.ensure_loaded?(Ecto) do
 
         join_query =
           query
-          |> join(:inner, [..., x], y in ^assoc.join_through,
+          |> join(:inner, [x], y in ^assoc.join_through,
             on: field(x, ^related_key) == field(y, ^related_join_key)
           )
-          |> join(:inner, [..., x], y in ^assoc.owner,
+          |> join(:inner, [_x, _y, x], y in ^assoc.owner,
             on: field(x, ^owner_join_key) == field(y, ^owner_key)
           )
 
@@ -923,7 +923,7 @@ if Code.ensure_loaded?(Ecto) do
         join_query =
           query
           |> Ecto.Association.combine_joins_query(assoc.where, binds_count - 1)
-          |> join(:inner, [..., x], y in ^assoc.owner,
+          |> join(:inner, [x], y in ^assoc.owner,
             on: field(x, ^assoc.related_key) == field(y, ^assoc.owner_key)
           )
 
